@@ -8,16 +8,8 @@ then
     dir="`pwd`"
 fi
 
-# Make sure directory ends with "/"
-if [[ $dir != */ ]]
-then
-	dir="$dir/*"
-else
-	dir="$dir*"
-fi
-
-# Loop all sub-directories
-for f in $dir
+# Loop all git sub-directories
+for f in $(find $dir -name ".git" -type d | xargs -r dirname)
 do
 	# Only interested in directories
 	[ -d "${f}" ] || continue
