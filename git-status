@@ -15,7 +15,7 @@ then
 fi
 
 # Loop all git sub-directories
-for f in $(find $dir -name ".git" -type d | xargs -r dirname)
+for f in $(find $dir -name ".git" -type d | xargs -r dirname | sort)
 do
 	# Only interested in directories
 	[ -d "${f}" ] || continue
@@ -27,37 +27,37 @@ do
 	# Check if directory is a git repository
 	if [ -d "$f/.git" ]
 	then
-		mod=0
+     mod=0
 		cd $f
 
-		# Check for modified files
-		if [ $(git status | grep modified -c) -ne 0 ]
-		then
+     # Check for modified files
+     if [ $(git status | grep modified -c) -ne 0 ]
+     then
 			mod=1
 			echo -en "\033[0;31m"
 			echo "Modified files"
 			echo -en "\033[0m"
-		fi
+     fi
 
-		# Check for untracked files
-		if [ $(git status | grep Untracked -c) -ne 0 ]
-		then
+     # Check for untracked files
+     if [ $(git status | grep Untracked -c) -ne 0 ]
+     then
 			mod=1
-			echo -en "\033[0;31m"
+               echo -en "\033[0;31m"
 			echo "Untracked files"
-			echo -en "\033[0m"
-		fi
+               echo -en "\033[0m"
+          fi
 
 		# Check if everything is peachy keen
 		if [ $mod -eq 0 ]
-		then
+          then
 			echo "Nothing to commit"
-		fi
+          fi
 
 		cd ../
 	else
 		echo "Not a git repository"
-	fi
+     fi
 
 	echo
 done
