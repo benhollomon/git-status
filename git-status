@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# File:   git-status
+# Author: Ben Hollomon
+# Date:   1/21/2018
+# Desc:   Output 'git status' of git sub-directories
+#         Modified from https://gist.github.com/mzabriskie/6631607
+
 dir="$1"
 
 # No directory has been provided, use current
