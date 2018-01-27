@@ -22,7 +22,7 @@ do
 	echo -en "\033[0m"
 
      mod=0
-		cd $f
+     pushd $f > /dev/null
 
      # Check for modified files
      if [ $(git status | grep modified -c) -ne 0 ]
@@ -48,7 +48,7 @@ do
      	echo "Nothing to commit"
      fi
 
-		cd ../
+     popd > /dev/null
 
-	echo
+     echo
 done
