@@ -6,12 +6,36 @@
 # Desc:   Output 'git status' of git sub-directories
 #         Modified from https://gist.github.com/mzabriskie/6631607
 
-dir="$1"
+
+# Initialize global variables
+verbose='false'
+aflag='false'
+dir=''
+
+# Get commandline arguments
+while getopts 'ad:v' flag; do
+     case "${flag}" in
+          a) aflag='true' ;;
+          d) dir="${OPTARG}" ;;
+          v) verbose='true' ;;
+          *) printf '\nUsage: %s: [-a] [-v] [-d %s] \n' $0 $dir; exit 2 ;;
+     esac
+done
 
 # No directory has been provided, use current
 if [ -z "$dir" ]
 then
-    dir="`pwd`"
+     dir="`pwd`"
+fi
+
+# Print arguments if -v flag was used
+if [ $verbose == true ]
+then
+     echo "Arguments: "
+     echo -e "\ta: $aflag"
+     echo -e "\tv: $verbose"
+     echo -e "\tdir: $dir"
+     echo
 fi
 
 # Loop all git sub-directories
@@ -31,6 +55,10 @@ do
      then
           mod+=2
      fi
+
+     # Check if repo has modified/untracked files or -a flag was used
+     if [ $mod -gt 0 -o $aflag == true ]
+     then
           echo -en "\033[0;32m"
           echo "${f}"
           echo -en "\033[0m"
@@ -49,13 +77,14 @@ do
                echo -en "\033[0m"
           fi
 
-     # Check if everything is peachy keen
-     if [ $mod -eq 0 ]
-     then
-     	echo "Nothing to commit"
+          # Check if everything is peachy keen and -a flag was used
+          if [ $mod -eq 0 -a $aflag == true ]
+          then
+               echo "Nothing to commit"
+          fi
+
+          echo
      fi
 
      popd > /dev/null
-
-     echo
 done
