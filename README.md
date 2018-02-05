@@ -3,7 +3,7 @@ If you're like me you have a dir like `~/Workspace/Github` where all your git re
 Usage:
 
 ```bash
-git-status [directory]
+git-status [-a] [-d <path>] [-h] [-v]
 ```
 
 This will run `git status` on each repo under the directory specified. If called with no directory provided it will default to the current directory.
