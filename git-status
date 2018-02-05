@@ -10,81 +10,93 @@
 # Initialize global variables
 verbose='false'
 aflag='false'
+hflag='false'
 dir=''
 
 # Get commandline arguments
-while getopts 'ad:v' flag; do
+while getopts 'ad:hv' flag; do
      case "${flag}" in
           a) aflag='true' ;;
           d) dir="${OPTARG}" ;;
+          h) hflag='true' ;;
           v) verbose='true' ;;
-          *) printf '\nUsage: %s: [-a] [-v] [-d %s] \n' $0 $dir; exit 2 ;;
+          *) printf '\nUsage: git-status [-a] [-d %s] [-h] [-v]\n' $dir; exit 2 ;;
      esac
 done
 
-# No directory has been provided, use current
-if [ -z "$dir" ]
+# Print help text if -h option was used
+if [ $hflag == true ]
 then
-     dir="`pwd`"
-fi
-
-# Print arguments if -v flag was used
-if [ $verbose == true ]
-then
-     echo "Arguments: "
-     echo -e "\ta: $aflag"
-     echo -e "\tv: $verbose"
-     echo -e "\tdir: $dir"
-     echo
-fi
-
-# Loop all git sub-directories
-for f in $(find $dir -name ".git" -type d | xargs -r dirname | sort)
-do
-     mod=0
-     pushd $f > /dev/null
-
-     # Check for modified files
-     if [ $(git status | grep modified -c) -ne 0 ]
+     printf "\nUsage: git-status [-a] [-d <path>] [-h] [-v]\n\n"
+     printf "  -a: display all git sub-directories, even if no modified/untracked files detected\n"
+     printf "  -d: path to directory (current directory used if not provided)\n"
+     printf "  -h: display this help and exit\n"
+     printf "  -v: verbose output\n\n"
+else
+     # No directory has been provided, use current
+     if [ -z "$dir" ]
      then
-          mod+=1
+          dir="`pwd`"
      fi
 
-     # Check for untracked files
-     if [ $(git status | grep Untracked -c) -ne 0 ]
+     # Print arguments if -v flag was used
+     if [ $verbose == true ]
      then
-          mod+=2
-     fi
-
-     # Check if repo has modified/untracked files or -a flag was used
-     if [ $mod -gt 0 -o $aflag == true ]
-     then
-          echo -en "\033[0;32m"
-          echo "${f}"
-          echo -en "\033[0m"
-
-          if [ $(($mod & 1)) -eq 1 ]
-          then
-               echo -en "\033[0;31m"
-               echo "Modified files"
-               echo -en "\033[0m"
-          fi
-
-          if [ $(($mod & 2)) -eq 2 ]
-          then
-               echo -en "\033[0;31m"
-               echo "Untracked files"
-               echo -en "\033[0m"
-          fi
-
-          # Check if everything is peachy keen and -a flag was used
-          if [ $mod -eq 0 -a $aflag == true ]
-          then
-               echo "Nothing to commit"
-          fi
-
+          echo "Arguments: "
+          echo -e "\ta: $aflag"
+          echo -e "\tv: $verbose"
+          echo -e "\tdir: $dir"
           echo
      fi
 
-     popd > /dev/null
-done
+     # Loop all git sub-directories
+     for f in $(find $dir -name ".git" -type d | xargs -r dirname | sort)
+     do
+          mod=0
+          pushd $f > /dev/null
+
+          # Check for modified files
+          if [ $(git status | grep modified -c) -ne 0 ]
+          then
+               mod+=1
+          fi
+
+          # Check for untracked files
+          if [ $(git status | grep Untracked -c) -ne 0 ]
+          then
+               mod+=2
+          fi
+
+          # Check if repo has modified/untracked files or -a flag was used
+          if [ $mod -gt 0 -o $aflag == true ]
+          then
+               echo -en "\033[0;32m"
+               echo "${f}"
+               echo -en "\033[0m"
+
+               if [ $(($mod & 1)) -eq 1 ]
+               then
+                    echo -en "\033[0;31m"
+                    echo "Modified files"
+                    echo -en "\033[0m"
+               fi
+
+               if [ $(($mod & 2)) -eq 2 ]
+               then
+                    echo -en "\033[0;31m"
+                    echo "Untracked files"
+                    echo -en "\033[0m"
+               fi
+
+               # Check if everything is peachy keen and -a flag was used
+               if [ $mod -eq 0 -a $aflag == true ]
+               then
+                    echo "Nothing to commit"
+               fi
+
+               echo
+          fi
+
+          popd > /dev/null
+     done
+fi
