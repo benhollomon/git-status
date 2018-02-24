@@ -67,13 +67,19 @@ else
                ((mod+=2))
           fi
 
-          # Check for unpushed commits
+          # Check for upstream branch
           remote_branch=$(git rev-parse --abbrev-ref master@{upstream} 2> /dev/null)
+          if [ $? -ne 0 ]
+          then
+               ((mod+=4))
+          fi
+
+          # Check for unpushed commits
           if [ -n "$remote_branch" ]
           then
                if [ $(git cherry -v $remote_branch | grep + -c) -ne 0 ]
                then
-                    ((mod+=4))
+                    ((mod+=8))
                fi
           fi
 
@@ -99,6 +105,13 @@ else
                fi
 
                if [ $(($mod & 4)) -eq 4 ]
+               then
+                    echo -en "\033[0;31m"
+                    echo "No upstream configured for branch master"
+                    echo -en "\033[0m"
+               fi
+
+               if [ $(($mod & 8)) -eq 8 ]
                then
                     echo -en "\033[0;31m"
                     echo "Unpushed commits"
