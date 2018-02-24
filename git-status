@@ -58,13 +58,13 @@ else
           # Check for modified files
           if [ $(git status | grep modified -c) -ne 0 ]
           then
-               mod+=1
+               ((mod+=1))
           fi
 
           # Check for untracked files
           if [ $(git status | grep Untracked -c) -ne 0 ]
           then
-               mod+=2
+               ((mod+=2))
           fi
 
           # Check for unpushed commits
@@ -73,7 +73,7 @@ else
           then
                if [ $(git cherry -v $remote_branch | grep + -c) -ne 0 ]
                then
-                    mod+=4
+                    ((mod+=4))
                fi
           fi
 
