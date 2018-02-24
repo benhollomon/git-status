@@ -67,6 +67,16 @@ else
                mod+=2
           fi
 
+          # Check for unpushed commits
+          remote_branch=$(git rev-parse --abbrev-ref master@{upstream} 2> /dev/null)
+          if [ -n "$remote_branch" ]
+          then
+               if [ $(git cherry -v $remote_branch | grep + -c) -ne 0 ]
+               then
+                    mod+=4
+               fi
+          fi
+
           # Check if repo has modified/untracked files or -a flag was used
           if [ $mod -gt 0 -o $aflag == true ]
           then
@@ -85,6 +95,13 @@ else
                then
                     echo -en "\033[0;31m"
                     echo "Untracked files"
+                    echo -en "\033[0m"
+               fi
+
+               if [ $(($mod & 4)) -eq 4 ]
+               then
+                    echo -en "\033[0;31m"
+                    echo "Unpushed commits"
                     echo -en "\033[0m"
                fi
 
